@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-off-white text-light-gray overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .gradient-bg {
+    background: linear-gradient(135deg, 
+      rgba(155, 93, 229, 0.15) 0%,   /* primary-purple with opacity */
+      rgba(224, 187, 228, 0.2) 25%,  /* soft-lavender */
+      rgba(245, 234, 254, 0.25) 50%, /* pale-lilac */
+      rgba(255, 111, 145, 0.15) 75%, /* accent-pink */
+      rgba(195, 240, 255, 0.2) 100%  /* calm-blue-tint */
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+  }
+  
+  .floating-particle {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .breathing-glow {
+    animation: breathe 2s ease-in-out infinite;
+  }
+  
+  .pulse-ring {
+    animation: pulseRing 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+  
+  .scream-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+  }
+  
+  .scream-button:active {
+    transform: scale(0.95);
+  }
+  
+  .scream-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .wave-animation {
+    animation: wave 1.5s ease-in-out infinite;
+  }
+
+  /* Custom slider styles */
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .slider::-webkit-slider-track {
+    background: #E0BBE4;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(45deg, #9B5DE5, #FF6F91);
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #FCFCFC;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .slider::-moz-range-track {
+    background: #E0BBE4;
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+  }
+
+  .slider::-moz-range-thumb {
+    background: linear-gradient(45deg, #9B5DE5, #FF6F91);
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #FCFCFC;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(5deg); }
+  66% { transform: translateY(5px) rotate(-3deg); }
+}
+
+@keyframes breathe {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(155, 93, 229, 0.3);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(155, 93, 229, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.5); }
+}
+
+.visualizer-bar {
+  transition: height 0.1s ease-out;
+  background: linear-gradient(to top, #9B5DE5, #FF6F91, #C3F0FF);
+}
+
+/* Enhanced button animations */
+.scream-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.scream-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.scream-button:hover::before {
+  left: 100%;
+}
