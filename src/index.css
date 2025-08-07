@@ -8,29 +8,35 @@
   }
   
   body {
-    @apply bg-off-white text-light-gray overflow-x-hidden;
+    @apply bg-dark-bg text-neon-white overflow-x-hidden;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="%23ff6f91" opacity="0.8"/><circle cx="10" cy="10" r="3" fill="%23ffffff"/></svg>'), auto;
   }
 }
 
 @layer components {
-  .gradient-bg {
+  .dark-gradient-bg {
     background: linear-gradient(135deg, 
-      rgba(155, 93, 229, 0.15) 0%,   /* primary-purple with opacity */
-      rgba(224, 187, 228, 0.2) 25%,  /* soft-lavender */
-      rgba(245, 234, 254, 0.25) 50%, /* pale-lilac */
-      rgba(255, 111, 145, 0.15) 75%, /* accent-pink */
-      rgba(195, 240, 255, 0.2) 100%  /* calm-blue-tint */
+      rgba(13, 13, 13, 1) 0%,
+      rgba(25, 15, 35, 0.95) 25%,
+      rgba(35, 20, 45, 0.9) 50%,
+      rgba(45, 25, 55, 0.95) 75%,
+      rgba(13, 13, 13, 1) 100%
     );
     background-size: 400% 400%;
-    animation: gradientShift 8s ease infinite;
+    animation: darkGradientShift 12s ease infinite;
   }
   
   .floating-particle {
     animation: float 6s ease-in-out infinite;
   }
   
-  .breathing-glow {
-    animation: breathe 2s ease-in-out infinite;
+  .neon-glow {
+    animation: neonBreathe 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(155, 93, 229, 0.5);
+  }
+  
+  .neon-border {
+    box-shadow: 0 0 10px rgba(155, 93, 229, 0.3), inset 0 0 10px rgba(155, 93, 229, 0.1);
   }
   
   .pulse-ring {
@@ -40,21 +46,44 @@
   .scream-button {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .scream-button:hover {
+    animation: screamShake 0.5s ease-in-out;
   }
   
   .scream-button:active {
     transform: scale(0.95);
   }
   
-  .scream-button:hover {
-    transform: scale(1.05);
-  }
-  
   .wave-animation {
     animation: wave 1.5s ease-in-out infinite;
   }
 
-  /* Custom slider styles */
+  .glow-text {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+
+  .glow-text-hover:hover {
+    text-shadow: 0 0 15px rgba(195, 240, 255, 0.8);
+  }
+
+  .voice-meter {
+    background: linear-gradient(90deg, 
+      rgba(195, 240, 255, 0.8) 0%,
+      rgba(155, 93, 229, 0.8) 50%,
+      rgba(255, 111, 145, 0.8) 100%
+    );
+    box-shadow: 0 0 20px rgba(155, 93, 229, 0.6);
+  }
+
+  .auth-success {
+    animation: authSuccess 0.8s ease-out;
+  }
+
+  /* Custom slider styles for dark theme */
   .slider {
     -webkit-appearance: none;
     appearance: none;
@@ -63,9 +92,10 @@
   }
 
   .slider::-webkit-slider-track {
-    background: #E0BBE4;
+    background: #2a2a2a;
     height: 8px;
     border-radius: 4px;
+    border: 1px solid rgba(155, 93, 229, 0.3);
   }
 
   .slider::-webkit-slider-thumb {
@@ -76,15 +106,15 @@
     width: 20px;
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid #FCFCFC;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 10px rgba(155, 93, 229, 0.5);
   }
 
   .slider::-moz-range-track {
-    background: #E0BBE4;
+    background: #2a2a2a;
     height: 8px;
     border-radius: 4px;
-    border: none;
+    border: 1px solid rgba(155, 93, 229, 0.3);
   }
 
   .slider::-moz-range-thumb {
@@ -93,30 +123,30 @@
     width: 20px;
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid #FCFCFC;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 10px rgba(155, 93, 229, 0.5);
   }
 }
 
-@keyframes gradientShift {
+@keyframes darkGradientShift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-10px) rotate(5deg); }
-  66% { transform: translateY(5px) rotate(-3deg); }
+  33% { transform: translateY(-15px) rotate(8deg); }
+  66% { transform: translateY(8px) rotate(-5deg); }
 }
 
-@keyframes breathe {
+@keyframes neonBreathe {
   0%, 100% { 
-    box-shadow: 0 0 20px rgba(155, 93, 229, 0.3);
+    box-shadow: 0 0 20px rgba(155, 93, 229, 0.5);
     transform: scale(1);
   }
   50% { 
-    box-shadow: 0 0 40px rgba(155, 93, 229, 0.6);
-    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(155, 93, 229, 0.8), 0 0 40px rgba(255, 111, 145, 0.4);
+    transform: scale(1.02);
   }
 }
 
@@ -136,17 +166,25 @@
   50% { transform: scaleY(1.5); }
 }
 
+@keyframes screamShake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-2px) rotate(-1deg); }
+  75% { transform: translateX(2px) rotate(1deg); }
+}
+
+@keyframes authSuccess {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
 .visualizer-bar {
   transition: height 0.1s ease-out;
   background: linear-gradient(to top, #9B5DE5, #FF6F91, #C3F0FF);
+  box-shadow: 0 0 10px rgba(155, 93, 229, 0.5);
 }
 
 /* Enhanced button animations */
-.scream-button {
-  position: relative;
-  overflow: hidden;
-}
-
 .scream-button::before {
   content: '';
   position: absolute;
@@ -154,10 +192,46 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transition: left 0.5s;
 }
 
 .scream-button:hover::before {
   left: 100%;
+}
+
+/* 3D Canvas styles */
+.three-canvas {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Cursor effects */
+.cursor-scream {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%23ff6f91" opacity="0.8"/><text x="12" y="16" text-anchor="middle" fill="%23ffffff" font-size="12">🎤</text></svg>'), auto;
+}
+
+/* Neon text effects */
+.neon-text {
+  text-shadow: 
+    0 0 5px rgba(155, 93, 229, 0.8),
+    0 0 10px rgba(155, 93, 229, 0.6),
+    0 0 15px rgba(155, 93, 229, 0.4);
+}
+
+.neon-text-pink {
+  text-shadow: 
+    0 0 5px rgba(255, 111, 145, 0.8),
+    0 0 10px rgba(255, 111, 145, 0.6),
+    0 0 15px rgba(255, 111, 145, 0.4);
+}
+
+.neon-text-cyan {
+  text-shadow: 
+    0 0 5px rgba(195, 240, 255, 0.8),
+    0 0 10px rgba(195, 240, 255, 0.6),
+    0 0 15px rgba(195, 240, 255, 0.4);
 }
