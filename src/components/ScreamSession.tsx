@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Mic, Square, Activity, Timer, TrendingUp, Zap } from 'lucide-react';
+import { Mic, Square, Activity, Timer, TrendingUp } from 'lucide-react';
 import AudioVisualizer from './AudioVisualizer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 
@@ -17,6 +17,7 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
   const sessionTimerRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    // Hide instructions after 3 seconds
     const timer = setTimeout(() => {
       setShowInstructions(false);
     }, 3000);
@@ -25,12 +26,14 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
   }, []);
 
   useEffect(() => {
+    // Track max pitch during session
     if (currentPitch > maxPitchReached) {
       setMaxPitchReached(currentPitch);
     }
   }, [currentPitch, maxPitchReached]);
 
   useEffect(() => {
+    // Session timer
     if (isRecording) {
       sessionTimerRef.current = setInterval(() => {
         setSessionTime(prev => prev + 1);
@@ -50,10 +53,14 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
 
   const handleStartRecording = async () => {
     if (isRecording) {
+      // Stop recording
       stopRecording();
       setIsRecording(false);
+      
+      // Immediately transition to results screen with recorded audio
       onScreamEnd(maxPitchReached, sessionTime, recordedBlob);
     } else {
+      // Start recording
       try {
         await startRecording();
         setIsRecording(true);
@@ -66,6 +73,14 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (sessionTimerRef.current) {
+        clearInterval(sessionTimerRef.current);
+      }
+    };
+  }, []);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -73,11 +88,11 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
   };
 
   const getIntensityColor = (pitch: number) => {
-    if (pitch < 15) return 'text-neon-cyan';
-    if (pitch < 30) return 'text-neon-purple';
-    if (pitch < 40) return 'text-neon-pink';
-    if (pitch < 50) return 'text-neon-pink';
-    return 'text-neon-white';
+    if (pitch < 15) return 'text-calm-blue-tint';
+    if (pitch < 30) return 'text-primary-purple';
+    if (pitch < 40) return 'text-accent-pink';
+    if (pitch < 50) return 'text-accent-pink';
+    return 'text-primary-purple';
   };
 
   return (
@@ -90,13 +105,9 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
           exit={{ opacity: 0, y: -20 }}
           className="absolute top-20 text-center"
         >
-          <motion.p 
-            className="text-neon-white text-lg neon-text-cyan"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
+          <p className="text-light-gray text-lg">
             Click to start. Speak, shout, or scream to see the magic!
-          </motion.p>
+          </p>
         </motion.div>
       )}
 
@@ -107,32 +118,36 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
           animate={{ opacity: 1, y: 0 }}
           className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20"
         >
-          <div className="bg-dark-surface/90 backdrop-blur-md rounded-2xl px-6 py-4 border border-neon-purple/30 shadow-2xl neon-border">
+          <div className="bg-pale-lilac/90 backdrop-blur-md rounded-2xl px-6 py-4 border border-soft-lavender shadow-2xl">
             <div className="flex items-center space-x-6">
+              {/* Timer */}
               <div className="flex items-center space-x-2">
-                <Timer size={18} className="text-neon-cyan" />
-                <span className="text-neon-white font-mono text-lg">{formatTime(sessionTime)}</span>
+                <Timer size={18} className="text-calm-blue-tint" />
+                <span className="text-light-gray font-mono text-lg">{formatTime(sessionTime)}</span>
               </div>
               
+              {/* Current Intensity */}
               <div className="flex items-center space-x-2">
-                <Activity size={18} className="text-neon-purple" />
+                <Activity size={18} className="text-primary-purple" />
                 <span className={`font-mono text-lg ${getIntensityColor(currentPitch)}`}>
                   {Math.round(currentPitch)}
                 </span>
               </div>
               
+              {/* Max Reached */}
               <div className="flex items-center space-x-2">
-                <TrendingUp size={18} className="text-neon-pink" />
-                <span className="text-neon-pink font-mono text-lg">
+                <TrendingUp size={18} className="text-accent-pink" />
+                <span className="text-accent-pink font-mono text-lg">
                   {Math.round(maxPitchReached)}
                 </span>
               </div>
             </div>
             
+            {/* Intensity Bar */}
             <div className="mt-3 w-full">
-              <div className="h-2 bg-dark-bg rounded-full overflow-hidden">
+              <div className="h-2 bg-soft-lavender rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink"
+                  className="h-full bg-gradient-to-r from-calm-blue-tint via-primary-purple to-accent-pink"
                   style={{ width: `${Math.min((currentPitch / 50) * 100, 100)}%` }}
                   transition={{ duration: 0.1 }}
                 />
@@ -160,71 +175,45 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
         className="mb-20"
       >
         <div className="relative">
+          {/* Outer pulse rings */}
           {isRecording && (
             <>
-              <motion.div 
-                className="absolute inset-0 w-32 h-32 rounded-full border-2 border-neon-pink/40"
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-              <motion.div 
-                className="absolute inset-0 w-32 h-32 rounded-full border-2 border-neon-cyan/30"
-                animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-              />
-              <motion.div 
-                className="absolute inset-0 w-32 h-32 rounded-full border-2 border-neon-purple/20"
-                animate={{ scale: [1, 2.2, 1], opacity: [0.3, 0, 0.3] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}
-              />
+              <div className="absolute inset-0 w-32 h-32 rounded-full border-2 border-accent-pink/30 animate-ping"></div>
+              <div className="absolute inset-0 w-32 h-32 rounded-full border-2 border-accent-pink/20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
             </>
           )}
           
-          <motion.button
+          <button
             onClick={handleStartRecording}
-            whileHover={{ 
-              scale: 1.1,
-              rotate: [0, -3, 3, 0],
-              transition: { rotate: { duration: 0.3 } }
-            }}
-            whileTap={{ scale: 0.9 }}
-            className={`scream-button group relative w-32 h-32 rounded-full font-bold text-dark-bg shadow-2xl transition-all duration-300 ${
+            className={`scream-button group relative w-32 h-32 rounded-full font-bold text-off-white shadow-2xl transition-all duration-300 ${
               isRecording 
-                ? 'bg-gradient-to-r from-neon-pink to-neon-purple hover:from-neon-pink/80 hover:to-neon-purple/80 scale-110' 
-                : 'bg-gradient-to-r from-neon-purple to-neon-pink hover:from-neon-purple/80 hover:to-neon-pink/80'
-            } neon-glow cursor-scream`}
+                ? 'bg-gradient-to-r from-accent-pink to-primary-purple hover:from-accent-pink/80 hover:to-primary-purple/80 scale-110' 
+                : 'bg-gradient-to-r from-primary-purple to-accent-pink hover:from-primary-purple/80 hover:to-accent-pink/80'
+            }`}
           >
+            {/* Inner glow effect */}
             <div className={`absolute inset-2 rounded-full ${
-              isRecording ? 'bg-neon-pink/20' : 'bg-neon-purple/20'
+              isRecording ? 'bg-accent-pink/20' : 'bg-primary-purple/20'
             } animate-pulse`}></div>
             
             <div className="relative z-10 flex flex-col items-center justify-center">
               {isRecording ? (
                 <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Square size={32} className="mb-2" />
-                  </motion.div>
+                  <Square size={32} className="mb-2 animate-pulse" />
                   <span className="text-sm">Stop</span>
                 </>
               ) : (
                 <>
-                  <motion.div
-                    whileHover={{ scale: 1.2 }}
-                  >
-                    <Mic size={32} className="mb-2 group-hover:animate-bounce" />
-                  </motion.div>
+                  <Mic size={32} className="mb-2 group-hover:animate-bounce" />
                   <span className="text-sm">Start</span>
                 </>
               )}
             </div>
-          </motion.button>
+          </button>
         </div>
       </motion.div>
 
-      {/* Live feedback */}
+      {/* Enhanced Live feedback - Positioned higher to avoid button overlap */}
       {isRecording && currentPitch > 5 && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -232,26 +221,19 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
           className="absolute bottom-60 text-center"
         >
           <motion.p
-            animate={{ 
-              scale: [1, 1.1, 1],
-              textShadow: [
-                '0 0 10px rgba(255, 111, 145, 0.5)',
-                '0 0 20px rgba(255, 111, 145, 0.8)',
-                '0 0 10px rgba(255, 111, 145, 0.5)'
-              ]
-            }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="text-neon-pink font-medium text-lg neon-text-pink"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-accent-pink font-medium text-lg"
           >
             Perfect! Keep expressing yourself!
           </motion.p>
-          <p className="text-neon-white/70 text-sm mt-2">
+          <p className="text-light-gray/70 text-sm mt-2">
             Let all that energy flow out
           </p>
         </motion.div>
       )}
 
-      {/* Encouragement for quiet periods */}
+      {/* Encouragement for quiet periods - Positioned higher to avoid button overlap */}
       {isRecording && currentPitch <= 5 && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -259,22 +241,13 @@ export default function ScreamSession({ onScreamEnd }: ScreamSessionProps) {
           className="absolute bottom-60 text-center"
         >
           <motion.p
-            animate={{ 
-              scale: [1, 1.15, 1],
-              textShadow: [
-                '0 0 10px rgba(155, 93, 229, 0.5)',
-                '0 0 20px rgba(155, 93, 229, 0.8)',
-                '0 0 10px rgba(155, 93, 229, 0.5)'
-              ]
-            }}
-            transition={{ duration: 1.2, repeat: Infinity }}
-            className="text-neon-purple font-bold text-xl neon-text flex items-center justify-center space-x-2"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="text-primary-purple font-bold text-xl"
           >
-            <Zap size={24} />
-            <span>Speak up! Let it out!</span>
-            <Zap size={24} />
+            Speak up! Let it out!
           </motion.p>
-          <p className="text-neon-white/70 text-sm mt-2">
+          <p className="text-light-gray/70 text-sm mt-2">
             Talk, shout, or scream - whatever feels right
           </p>
         </motion.div>

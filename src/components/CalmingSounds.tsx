@@ -18,7 +18,7 @@ const sounds: Sound[] = [
     name: 'Rainfall',
     icon: <CloudRain size={20} />,
     url: 'https://www.soundjay.com/misc/sounds/rain-01.mp3',
-    color: 'from-neon-cyan to-neon-purple',
+    color: 'from-calm-blue-tint to-primary-purple',
     fallbackType: 'rain'
   },
   {
@@ -26,7 +26,7 @@ const sounds: Sound[] = [
     name: 'Ocean Waves',
     icon: <Waves size={20} />,
     url: 'https://www.soundjay.com/misc/sounds/ocean-wave-1.mp3',
-    color: 'from-neon-cyan to-neon-pink',
+    color: 'from-calm-blue-tint to-accent-pink',
     fallbackType: 'ocean'
   },
   {
@@ -34,7 +34,7 @@ const sounds: Sound[] = [
     name: 'Campfire Crackle',
     icon: <Flame size={20} />,
     url: 'https://www.soundjay.com/misc/sounds/fire-crackling-1.mp3',
-    color: 'from-neon-pink to-neon-purple',
+    color: 'from-accent-pink to-primary-purple',
     fallbackType: 'fire'
   },
   {
@@ -42,7 +42,7 @@ const sounds: Sound[] = [
     name: 'Forest Breeze',
     icon: <Wind size={20} />,
     url: 'https://www.soundjay.com/misc/sounds/wind-1.mp3',
-    color: 'from-neon-purple to-neon-cyan',
+    color: 'from-primary-purple to-calm-blue-tint',
     fallbackType: 'wind'
   },
   {
@@ -50,7 +50,7 @@ const sounds: Sound[] = [
     name: 'Soft Piano',
     icon: <Music size={20} />,
     url: 'https://www.soundjay.com/misc/sounds/piano-1.mp3',
-    color: 'from-neon-purple to-neon-pink',
+    color: 'from-soft-lavender to-primary-purple',
     fallbackType: 'piano'
   }
 ];
@@ -76,6 +76,7 @@ export default function CalmingSounds({ onHome, onScreamAgain }: CalmingSoundsPr
   const [usingFallback, setUsingFallback] = useState(false);
 
   useEffect(() => {
+    // Cleanup audio when component unmounts
     return () => {
       stopAllSounds();
     };
@@ -139,6 +140,7 @@ export default function CalmingSounds({ onHome, onScreamAgain }: CalmingSoundsPr
       gainNode.connect(analyser);
       analyser.connect(audioContext.destination);
 
+      // Create visualization data for fallback sounds
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       const updateVisualization = () => {
         if (analyserRef.current && currentlyPlaying) {
@@ -361,54 +363,50 @@ export default function CalmingSounds({ onHome, onScreamAgain }: CalmingSoundsPr
         />
       </div>
 
-      {/* Header with Navigation */}
+      {/* Header with Navigation - Below visualizer */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between p-4 z-20 mt-32"
       >
-        <motion.button
+        <button
           onClick={onHome}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center space-x-2 px-3 py-2 bg-dark-surface/80 hover:bg-dark-surface backdrop-blur-sm text-neon-white rounded-lg transition-all duration-300 border border-neon-purple/30"
+          className="flex items-center space-x-2 px-3 py-2 bg-soft-lavender/80 hover:bg-soft-lavender backdrop-blur-sm text-light-gray rounded-lg transition-all duration-300 hover:scale-105"
         >
           <Home size={16} />
           <span className="text-sm">Home</span>
-        </motion.button>
+        </button>
         
-        <motion.button
+        <button
           onClick={onScreamAgain}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center space-x-2 px-3 py-2 bg-neon-purple/80 hover:bg-neon-purple backdrop-blur-sm text-dark-bg rounded-lg transition-all duration-300 neon-glow"
+          className="flex items-center space-x-2 px-3 py-2 bg-primary-purple/80 hover:bg-primary-purple backdrop-blur-sm text-off-white rounded-lg transition-all duration-300 hover:scale-105"
         >
           <Volume size={16} />
           <span className="text-sm">Scream Again</span>
-        </motion.button>
+        </button>
       </motion.div>
 
-      {/* Main Content */}
+      {/* Main Content - Centered and Compact */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 space-y-8">
-        {/* Title */}
+        {/* Compact Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="text-center space-y-2"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-neon-white neon-text">
+          <h1 className="text-3xl md:text-4xl font-bold text-light-gray">
             Find Your
-            <span className="bg-gradient-to-r from-neon-purple to-neon-pink bg-clip-text text-transparent ml-2 neon-text-pink">
+            <span className="bg-gradient-to-r from-primary-purple to-accent-pink bg-clip-text text-transparent ml-2">
               Inner Peace
             </span>
           </h1>
-          <p className="text-lg text-neon-white/80">
+          <p className="text-lg text-light-gray/80">
             Let these calming sounds wash away your stress
           </p>
         </motion.div>
 
-        {/* Volume Control */}
+        {/* Volume Control - Positioned with proper spacing */}
         <AnimatePresence>
           {currentlyPlaying && (
             <motion.div
@@ -416,17 +414,15 @@ export default function CalmingSounds({ onHome, onScreamAgain }: CalmingSoundsPr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="bg-dark-surface/50 backdrop-blur-sm rounded-xl p-3 border border-neon-purple/30 w-full max-w-md neon-border"
+              className="bg-pale-lilac/50 backdrop-blur-sm rounded-xl p-3 border border-soft-lavender w-full max-w-md"
             >
               <div className="flex items-center space-x-3">
-                <motion.button
+                <button
                   onClick={toggleMute}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="text-neon-white/70 hover:text-neon-white transition-colors p-1 rounded-lg hover:bg-dark-bg/50"
+                  className="text-light-gray/70 hover:text-light-gray transition-colors p-1 rounded-lg hover:bg-soft-lavender/50"
                 >
                   {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                </motion.button>
+                </button>
                 
                 <div className="flex-1">
                   <input
@@ -436,28 +432,26 @@ export default function CalmingSounds({ onHome, onScreamAgain }: CalmingSoundsPr
                     step="0.1"
                     value={isMuted ? 0 : volume}
                     onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-dark-bg rounded-lg appearance-none cursor-pointer slider"
+                    className="w-full h-2 bg-soft-lavender rounded-lg appearance-none cursor-pointer slider"
                   />
                 </div>
                 
-                <span className="text-neon-white font-mono min-w-[2.5rem] text-center text-xs">
+                <span className="text-light-gray font-mono min-w-[2.5rem] text-center text-xs">
                   {Math.round((isMuted ? 0 : volume) * 100)}%
                 </span>
                 
-                <motion.button
+                <button
                   onClick={stopAllSounds}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="text-xs text-neon-white/70 hover:text-neon-white transition-colors px-2 py-1 rounded-lg hover:bg-dark-bg/50"
+                  className="text-xs text-light-gray/70 hover:text-light-gray transition-colors px-2 py-1 rounded-lg hover:bg-soft-lavender/50"
                 >
                   Stop
-                </motion.button>
+                </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Sound Buttons Grid */}
+        {/* Sound Buttons Grid - Positioned at bottom */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -477,52 +471,29 @@ export default function CalmingSounds({ onHome, onScreamAgain }: CalmingSoundsPr
                 disabled={isLoading}
                 className={`p-3 rounded-xl border transition-all duration-300 ${
                   currentlyPlaying === sound.id
-                    ? 'border-neon-purple bg-neon-purple/20 shadow-lg neon-glow'
-                    : 'border-neon-purple/30 bg-dark-surface/50 hover:border-neon-pink/50 hover:bg-dark-surface/70'
+                    ? 'border-primary-purple bg-primary-purple/20 shadow-lg shadow-primary-purple/25'
+                    : 'border-soft-lavender bg-pale-lilac/50 hover:border-primary-purple/50 hover:bg-pale-lilac/70'
                 } backdrop-blur-sm`}
               >
                 <div className="flex flex-col items-center space-y-2">
-                  <motion.div 
-                    className={`p-2 rounded-lg bg-gradient-to-r ${sound.color} shadow-lg neon-glow`}
-                    whileHover={{ rotate: 5 }}
-                  >
+                  <div className={`p-2 rounded-lg bg-gradient-to-r ${sound.color} shadow-lg`}>
                     {sound.icon}
-                  </motion.div>
+                  </div>
                   
-                  <h3 className="text-neon-white font-medium text-xs text-center leading-tight">{sound.name}</h3>
+                  <h3 className="text-light-gray font-medium text-xs text-center leading-tight">{sound.name}</h3>
                   
                   <div className="flex items-center justify-center h-4">
                     {isLoading && currentlyPlaying !== sound.id ? (
-                      <motion.div 
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="w-3 h-3 border-2 border-neon-purple border-t-transparent rounded-full"
-                      />
+                      <div className="w-3 h-3 border-2 border-primary-purple border-t-transparent rounded-full animate-spin"></div>
                     ) : currentlyPlaying === sound.id ? (
                       <div className="flex space-x-0.5">
-                        <motion.div 
-                          className="w-0.5 h-3 bg-neon-purple rounded"
-                          animate={{ scaleY: [1, 1.5, 1] }}
-                          transition={{ duration: 0.5, repeat: Infinity }}
-                        />
-                        <motion.div 
-                          className="w-0.5 h-2 bg-neon-purple rounded"
-                          animate={{ scaleY: [1, 1.8, 1] }}
-                          transition={{ duration: 0.5, repeat: Infinity, delay: 0.1 }}
-                        />
-                        <motion.div 
-                          className="w-0.5 h-4 bg-neon-purple rounded"
-                          animate={{ scaleY: [1, 1.2, 1] }}
-                          transition={{ duration: 0.5, repeat: Infinity, delay: 0.2 }}
-                        />
-                        <motion.div 
-                          className="w-0.5 h-2 bg-neon-purple rounded"
-                          animate={{ scaleY: [1, 1.6, 1] }}
-                          transition={{ duration: 0.5, repeat: Infinity, delay: 0.3 }}
-                        />
+                        <div className="w-0.5 h-3 bg-primary-purple rounded animate-pulse"></div>
+                        <div className="w-0.5 h-2 bg-primary-purple rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-0.5 h-4 bg-primary-purple rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-0.5 h-2 bg-primary-purple rounded animate-pulse" style={{ animationDelay: '0.3s' }}></div>
                       </div>
                     ) : (
-                      <Play size={12} className="text-neon-white/60" />
+                      <Play size={12} className="text-light-gray/60" />
                     )}
                   </div>
                 </div>
@@ -538,11 +509,11 @@ export default function CalmingSounds({ onHome, onScreamAgain }: CalmingSoundsPr
           transition={{ delay: 1 }}
           className="text-center space-y-1 pb-4"
         >
-          <p className="text-neon-white/70 text-sm">
+          <p className="text-light-gray/70 text-sm">
             Take your time. Breathe deeply. Let the sounds guide you to tranquility.
           </p>
           {usingFallback && (
-            <p className="text-xs text-neon-cyan neon-text-cyan">
+            <p className="text-xs text-primary-purple">
               ✨ Using AI-generated ambient sounds for the best experience
             </p>
           )}
