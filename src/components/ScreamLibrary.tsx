@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Trash2, Edit3, Download, Clock, TrendingUp, X, Home } from 'lucide-react';
+import { Play, Pause, Trash2, Edit3, Download, Clock, TrendingUp, X, Home, Zap } from 'lucide-react';
 import { useScreams } from '../hooks/useScreams';
 import { useAuth } from '../hooks/useAuth';
-import { useSubscription } from '../hooks/useSubscription';
-import { Scream } from '../types/user';
-import SubscriptionStatus from './SubscriptionStatus';
+import { gsap } from 'gsap';
 
 interface ScreamLibraryProps {
   onClose: () => void;
@@ -13,28 +11,45 @@ interface ScreamLibraryProps {
 
 export default function ScreamLibrary({ onClose }: ScreamLibraryProps) {
   const { user } = useAuth();
-  const { hasActiveSubscription } = useSubscription();
-  const { screams, loading, deleteScream, updateScreamName } = useScreams(user?.id || null);
+  const { screams, loading, deleteScream, updateScreamName } = useScreams(user?.uid || null);
   const [playingScream, setPlayingScream] = useState<string | null>(null);
   const [editingScream, setEditingScream] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [audioElements, setAudioElements] = useState<{ [key: string]: HTMLAudioElement }>({});
+  const libraryRef = useRef<HTMLDivElement>(null);
 
-  const handlePlay = (scream: Scream) => {
+  useEffect(() => {
+    // GSAP entrance animation
+    if (libraryRef.current) {
+      gsap.fromTo(libraryRef.current,
+        { 
+          scale: 0.9, 
+          opacity: 0,
+          rotationY: -15
+        },
+        { 
+          scale: 1, 
+          opacity: 1,
+          rotationY: 0,
+          duration: 0.8, 
+          ease: "back.out(1.7)"
+        }
+      );
+    }
+  }, []);
+
+  const handlePlay = (scream: any) => {
     if (playingScream === scream.id) {
-      // Pause current scream
       const audio = audioElements[scream.id];
       if (audio) {
         audio.pause();
       }
       setPlayingScream(null);
     } else {
-      // Stop any currently playing scream
       if (playingScream && audioElements[playingScream]) {
         audioElements[playingScream].pause();
       }
 
-      // Play new scream
       let audio = audioElements[scream.id];
       if (!audio) {
         audio = new Audio(scream.audioUrl);
@@ -47,17 +62,26 @@ export default function ScreamLibrary({ onClose }: ScreamLibraryProps) {
     }
   };
 
-  const handleDelete = async (scream: Scream) => {
-    if (confirm(`Are you sure you want to delete "${scream.name}"?`)) {
+  const handleDelete = async (scream: any) => {
+    if (confirm(`PERMANENTLY DELETE "${scream.name}"?`)) {
       try {
         await deleteScream(scream.id, scream.audioUrl);
+        
+        // Screen shake effect
+        gsap.to(document.body, {
+          x: 5,
+          duration: 0.1,
+          yoyo: true,
+          repeat: 3,
+          ease: "power2.inOut"
+        });
       } catch (error) {
-        alert('Failed to delete scream. Please try again.');
+        alert('DELETION FAILED. TRY AGAIN.');
       }
     }
   };
 
-  const handleEditName = (scream: Scream) => {
+  const handleEditName = (scream: any) => {
     setEditingScream(scream.id);
     setEditName(scream.name);
   };
@@ -70,11 +94,11 @@ export default function ScreamLibrary({ onClose }: ScreamLibraryProps) {
       setEditingScream(null);
       setEditName('');
     } catch (error) {
-      alert('Failed to update scream name. Please try again.');
+      alert('UPDATE FAILED. TRY AGAIN.');
     }
   };
 
-  const handleDownload = (scream: Scream) => {
+  const handleDownload = (scream: any) => {
     const link = document.createElement('a');
     link.href = scream.audioUrl;
     link.download = `${scream.name}.webm`;
@@ -107,166 +131,201 @@ export default function ScreamLibrary({ onClose }: ScreamLibraryProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 scanlines"
     >
       <motion.div
+        ref={libraryRef}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="bg-off-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-dark-card rounded-2xl shadow-neon-strong max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-neon-purple/30"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-soft-lavender">
+        <div className="flex items-center justify-between p-6 border-b border-neon-purple/30">
           <div className="flex items-center space-x-4">
-            <button
+            <motion.button
               onClick={onClose}
-              className="flex items-center space-x-2 px-3 py-2 bg-soft-lavender hover:bg-soft-lavender/80 text-light-gray rounded-lg transition-colors"
+              whileHover={{ scale: 1.05, filter: "brightness(1.2)" }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-all duration-300 border border-gray-600 hover:border-neon-cyan scream-button"
             >
               <Home size={16} />
-              <span className="text-sm">Home</span>
-            </button>
+              <span className="text-sm font-bold">HOME</span>
+            </motion.button>
             
             <div>
-              <h2 className="text-2xl font-bold text-light-gray">My Screams</h2>
-              <p className="text-light-gray/70 text-sm mt-1">
-                Your saved scream collection
+              <motion.h2 
+                className="text-3xl font-black text-white glow-text"
+                animate={{
+                  textShadow: [
+                    "0 0 10px #ff3366",
+                    "0 0 20px #9b5de5",
+                    "0 0 15px #00ffff",
+                    "0 0 10px #ff3366"
+                  ]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                MY SCREAMS
+              </motion.h2>
+              <p className="text-gray-400 text-sm mt-1 font-medium">
+                YOUR DIGITAL SCREAM VAULT
               </p>
             </div>
           </div>
           
-          <button
+          <motion.button
             onClick={onClose}
-            className="p-2 hover:bg-soft-lavender rounded-full transition-colors"
+            whileHover={{ scale: 1.1, rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
+            className="p-3 hover:bg-gray-800 rounded-full transition-colors border border-gray-600 hover:border-neon-pink"
           >
-            <X size={20} className="text-light-gray" />
-          </button>
-        </div>
-
-        {/* Subscription Status */}
-        <div className="p-6 border-b border-soft-lavender">
-          <SubscriptionStatus />
+            <X size={20} className="text-white" />
+          </motion.button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {!hasActiveSubscription ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-accent-pink/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Play size={24} className="text-accent-pink" />
-              </div>
-              <h3 className="text-lg font-semibold text-light-gray mb-2">Subscription Required</h3>
-              <p className="text-light-gray/70 mb-4">
-                Subscribe to save and access your screams
-              </p>
-              <button
-                onClick={onClose}
-                className="px-6 py-3 bg-primary-purple hover:bg-primary-purple/80 text-off-white rounded-lg font-medium transition-colors"
-              >
-                Subscribe Now
-              </button>
-            </div>
-          ) : loading ? (
+          {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-2 border-primary-purple border-t-transparent rounded-full animate-spin"></div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-12 h-12 border-4 border-neon-pink border-t-transparent rounded-full"
+              />
             </div>
           ) : screams.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-soft-lavender rounded-full flex items-center justify-center mx-auto mb-4">
-                <Play size={24} className="text-light-gray/60" />
-              </div>
-              <h3 className="text-lg font-semibold text-light-gray mb-2">No screams yet</h3>
-              <p className="text-light-gray/70">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-12"
+            >
+              <motion.div 
+                className="w-20 h-20 bg-gradient-to-r from-neon-pink to-neon-purple rounded-full flex items-center justify-center mx-auto mb-6 shadow-neon"
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Zap size={32} className="text-white" />
+              </motion.div>
+              <h3 className="text-2xl font-black text-white mb-4 glow-text">NO SCREAMS YET</h3>
+              <p className="text-gray-400 text-lg">
                 Record your first scream to start building your collection!
               </p>
-            </div>
+            </motion.div>
           ) : (
             <div className="grid gap-4">
               {screams.map((scream, index) => (
                 <motion.div
                   key={scream.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-pale-lilac/50 rounded-xl p-4 border border-soft-lavender hover:border-primary-purple/50 transition-all duration-300"
+                  whileHover={{ 
+                    scale: 1.02,
+                    borderColor: "rgba(255, 51, 102, 0.6)"
+                  }}
+                  className="bg-gray-800/50 rounded-xl p-6 border border-gray-600 hover:border-neon-pink/50 transition-all duration-300 backdrop-blur-sm"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       {editingScream === scream.id ? (
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <input
                             type="text"
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            className="flex-1 bg-off-white border border-soft-lavender rounded-lg px-3 py-1 text-light-gray focus:outline-none focus:ring-2 focus:ring-primary-purple"
+                            className="flex-1 bg-dark border border-neon-purple/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-pink glow-text"
                             onKeyPress={(e) => e.key === 'Enter' && handleSaveName()}
                             autoFocus
                           />
-                          <button
+                          <motion.button
                             onClick={handleSaveName}
-                            className="px-3 py-1 bg-primary-purple text-off-white rounded-lg text-sm hover:bg-primary-purple/80 transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-4 py-2 bg-neon-purple text-white rounded-lg text-sm font-bold hover:bg-neon-purple/80 transition-colors shadow-neon"
                           >
-                            Save
-                          </button>
-                          <button
+                            SAVE
+                          </motion.button>
+                          <motion.button
                             onClick={() => setEditingScream(null)}
-                            className="px-3 py-1 bg-soft-lavender text-light-gray rounded-lg text-sm hover:bg-soft-lavender/80 transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-4 py-2 bg-gray-700 text-white rounded-lg text-sm font-bold hover:bg-gray-600 transition-colors"
                           >
-                            Cancel
-                          </button>
+                            CANCEL
+                          </motion.button>
                         </div>
                       ) : (
                         <div>
-                          <h3 className="font-semibold text-light-gray text-lg">
+                          <motion.h3 
+                            className="font-black text-white text-xl glow-text mb-2"
+                            whileHover={{ scale: 1.02 }}
+                          >
                             {scream.name}
-                          </h3>
-                          <div className="flex items-center space-x-4 text-sm text-light-gray/70 mt-1">
+                          </motion.h3>
+                          <div className="flex items-center space-x-6 text-sm text-gray-400">
                             <div className="flex items-center space-x-1">
                               <Clock size={14} />
-                              <span>{formatDuration(scream.duration)}</span>
+                              <span className="font-mono">{formatDuration(scream.duration)}</span>
                             </div>
                             <div className="flex items-center space-x-1">
                               <TrendingUp size={14} />
-                              <span>Max: {Math.round(scream.maxPitch)}</span>
+                              <span className="font-mono text-neon-cyan">MAX: {Math.round(scream.maxPitch)}</span>
                             </div>
-                            <span>{formatDate(scream.createdAt)}</span>
-                            <span>{formatFileSize(scream.fileSize)}</span>
+                            <span className="font-mono">{formatDate(scream.createdAt)}</span>
+                            <span className="font-mono">{formatFileSize(scream.fileSize)}</span>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex items-center space-x-2 ml-4">
-                      <button
+                    <div className="flex items-center space-x-2 ml-6">
+                      <motion.button
                         onClick={() => handlePlay(scream)}
-                        className="p-2 bg-primary-purple hover:bg-primary-purple/80 text-off-white rounded-lg transition-colors"
+                        whileHover={{ scale: 1.1, filter: "brightness(1.2)" }}
+                        whileTap={{ scale: 0.9 }}
+                        className="p-3 bg-gradient-to-r from-neon-purple to-neon-pink text-white rounded-lg transition-all duration-300 shadow-neon scream-button"
                       >
                         {playingScream === scream.id ? (
-                          <Pause size={16} />
+                          <Pause size={18} />
                         ) : (
-                          <Play size={16} />
+                          <Play size={18} />
                         )}
-                      </button>
+                      </motion.button>
 
-                      <button
+                      <motion.button
                         onClick={() => handleEditName(scream)}
-                        className="p-2 bg-soft-lavender hover:bg-soft-lavender/80 text-light-gray rounded-lg transition-colors"
+                        whileHover={{ scale: 1.1, filter: "brightness(1.2)" }}
+                        whileTap={{ scale: 0.9 }}
+                        className="p-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all duration-300 border border-gray-600 hover:border-neon-cyan scream-button"
                       >
-                        <Edit3 size={16} />
-                      </button>
+                        <Edit3 size={18} />
+                      </motion.button>
 
-                      <button
+                      <motion.button
                         onClick={() => handleDownload(scream)}
-                        className="p-2 bg-calm-blue-tint hover:bg-calm-blue-tint/80 text-light-gray rounded-lg transition-colors"
+                        whileHover={{ scale: 1.1, filter: "brightness(1.2)" }}
+                        whileTap={{ scale: 0.9 }}
+                        className="p-3 bg-neon-cyan/20 hover:bg-neon-cyan/30 text-neon-cyan rounded-lg transition-all duration-300 border border-neon-cyan/50 scream-button"
                       >
-                        <Download size={16} />
-                      </button>
+                        <Download size={18} />
+                      </motion.button>
 
-                      <button
+                      <motion.button
                         onClick={() => handleDelete(scream)}
-                        className="p-2 bg-accent-pink hover:bg-accent-pink/80 text-off-white rounded-lg transition-colors"
+                        whileHover={{ 
+                          scale: 1.1, 
+                          filter: "brightness(1.2)",
+                          rotate: [0, -5, 5, 0]
+                        }}
+                        whileTap={{ scale: 0.9 }}
+                        className="p-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-all duration-300 border border-red-500/50 scream-button"
                       >
-                        <Trash2 size={16} />
-                      </button>
+                        <Trash2 size={18} />
+                      </motion.button>
                     </div>
                   </div>
                 </motion.div>
