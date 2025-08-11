@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send, RotateCcw, Heart, Zap } from 'lucide-react';
-import { gsap } from 'gsap';
+import { Send, RotateCcw, Heart } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,34 +16,13 @@ export default function AIChat({ onReset }: AIChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "I'm here to listen. How are you feeling after letting that out?",
+      content: "Hi there. I'm here to listen. How are you feeling after letting that out?",
       timestamp: new Date()
     }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // GSAP entrance animation
-    if (chatRef.current) {
-      gsap.fromTo(chatRef.current,
-        { 
-          scale: 0.95, 
-          opacity: 0,
-          y: 20
-        },
-        { 
-          scale: 1, 
-          opacity: 1,
-          y: 0,
-          duration: 0.8, 
-          ease: "power2.out"
-        }
-      );
-    }
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -67,7 +45,7 @@ export default function AIChat({ onReset }: AIChatProps) {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response
+    // Simulate AI response (replace with actual AI API call)
     setTimeout(() => {
       const responses = [
         "That sounds really challenging. It's completely understandable to feel that way.",
@@ -76,10 +54,7 @@ export default function AIChat({ onReset }: AIChatProps) {
         "It sounds like you're carrying a lot. Remember, you don't have to carry it all alone.",
         "That must have been difficult to experience. How are you taking care of yourself right now?",
         "I hear you. Sometimes the best thing we can do is just breathe and be present with ourselves.",
-        "You've taken a big step by recognizing and expressing these feelings. That takes strength.",
-        "Your voice matters. Your feelings are real and important.",
-        "Sometimes screaming is exactly what we need. How does it feel to let that out?",
-        "You're not alone in feeling this way. Many people struggle with similar emotions."
+        "You've taken a big step by recognizing and expressing these feelings. That takes strength."
       ];
 
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
@@ -103,52 +78,30 @@ export default function AIChat({ onReset }: AIChatProps) {
   };
 
   return (
-    <div ref={chatRef} className="min-h-screen flex flex-col max-w-3xl mx-auto p-6 scanlines">
+    <div className="min-h-screen flex flex-col max-w-2xl mx-auto p-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8"
+        className="flex items-center justify-between mb-6"
       >
-        <div className="flex items-center space-x-4">
-          <motion.div 
-            className="w-12 h-12 bg-gradient-to-r from-neon-pink to-neon-purple rounded-full flex items-center justify-center shadow-neon"
-            animate={{ 
-              rotate: [0, 5, -5, 0],
-              scale: [1, 1.05, 1]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Heart size={24} className="text-white" />
-          </motion.div>
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-accent-pink to-primary-purple rounded-full flex items-center justify-center">
+            <Heart size={20} className="text-off-white" />
+          </div>
           <div>
-            <motion.h2 
-              className="text-2xl font-black text-white glow-text"
-              animate={{
-                textShadow: [
-                  "0 0 10px #ff3366",
-                  "0 0 20px #9b5de5",
-                  "0 0 15px #00ffff",
-                  "0 0 10px #ff3366"
-                ]
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              ANONYMOUS SUPPORT
-            </motion.h2>
-            <p className="text-gray-400 text-sm font-medium">A SAFE SPACE TO TALK</p>
+            <h2 className="text-xl font-semibold text-light-gray">Supportive Chat</h2>
+            <p className="text-light-gray/70 text-sm">A safe space to talk</p>
           </div>
         </div>
         
-        <motion.button
+        <button
           onClick={onReset}
-          whileHover={{ scale: 1.05, filter: "brightness(1.2)" }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center space-x-2 px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-all duration-300 border border-gray-600 hover:border-neon-cyan scream-button"
+          className="flex items-center space-x-2 px-4 py-2 bg-soft-lavender hover:bg-soft-lavender/80 text-light-gray rounded-lg transition-colors"
         >
-          <RotateCcw size={18} />
-          <span className="font-bold">START OVER</span>
-        </motion.button>
+          <RotateCcw size={16} />
+          <span>Start Over</span>
+        </button>
       </motion.div>
 
       {/* Messages */}
@@ -156,29 +109,28 @@ export default function AIChat({ onReset }: AIChatProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="flex-1 overflow-y-auto space-y-6 mb-8"
+        className="flex-1 overflow-y-auto space-y-4 mb-6"
       >
         {messages.map((message, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl border ${
+            <div
+              className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
                 message.role === 'user'
-                  ? 'bg-gradient-to-r from-neon-purple to-neon-pink text-white shadow-neon border-neon-pink/30'
-                  : 'bg-dark-card text-gray-300 border-gray-600'
+                  ? 'bg-primary-purple text-off-white'
+                  : 'bg-soft-lavender text-light-gray'
               }`}
             >
-              <p className="text-sm leading-relaxed font-medium">{message.content}</p>
-              <p className="text-xs opacity-70 mt-2 font-mono">
+              <p className="text-sm">{message.content}</p>
+              <p className="text-xs opacity-70 mt-1">
                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
-            </motion.div>
+            </div>
           </motion.div>
         ))}
 
@@ -188,23 +140,11 @@ export default function AIChat({ onReset }: AIChatProps) {
             animate={{ opacity: 1, y: 0 }}
             className="flex justify-start"
           >
-            <div className="bg-dark-card text-gray-300 px-6 py-4 rounded-2xl border border-gray-600">
-              <div className="flex space-x-2">
-                <motion.div 
-                  className="w-3 h-3 bg-neon-cyan rounded-full"
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.6, repeat: Infinity }}
-                />
-                <motion.div 
-                  className="w-3 h-3 bg-neon-purple rounded-full"
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-                />
-                <motion.div 
-                  className="w-3 h-3 bg-neon-pink rounded-full"
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-                />
+            <div className="bg-soft-lavender text-light-gray px-4 py-3 rounded-2xl">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-light-gray/60 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-light-gray/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-light-gray/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
             </div>
           </motion.div>
@@ -218,7 +158,7 @@ export default function AIChat({ onReset }: AIChatProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="flex items-center space-x-4"
+        className="flex items-center space-x-3"
       >
         <div className="flex-1 relative">
           <textarea
@@ -226,21 +166,19 @@ export default function AIChat({ onReset }: AIChatProps) {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Share what's on your mind..."
-            className="w-full bg-dark-card text-white rounded-xl px-6 py-4 pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-neon-pink border border-gray-600 focus:border-neon-pink placeholder-gray-500 font-medium"
+            className="w-full bg-soft-lavender text-light-gray rounded-lg px-4 py-3 pr-12 resize-none focus:outline-none focus:ring-2 focus:ring-primary-purple placeholder-light-gray/60"
             rows={1}
-            style={{ minHeight: '56px', maxHeight: '120px' }}
+            style={{ minHeight: '48px', maxHeight: '120px' }}
           />
         </div>
         
-        <motion.button
+        <button
           onClick={handleSendMessage}
           disabled={!inputValue.trim() || isTyping}
-          whileHover={{ scale: 1.05, filter: "brightness(1.2)" }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-gradient-to-r from-neon-purple to-neon-pink hover:from-neon-purple/80 hover:to-neon-pink/80 disabled:from-gray-700 disabled:to-gray-600 disabled:cursor-not-allowed text-white p-4 rounded-xl transition-all duration-300 shadow-neon scream-button"
+          className="bg-primary-purple hover:bg-primary-purple/80 disabled:bg-soft-lavender disabled:cursor-not-allowed text-off-white p-3 rounded-lg transition-colors"
         >
-          <Send size={24} />
-        </motion.button>
+          <Send size={20} />
+        </button>
       </motion.div>
 
       {/* Disclaimer */}
@@ -248,9 +186,9 @@ export default function AIChat({ onReset }: AIChatProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="text-gray-500 text-xs text-center mt-4 font-medium"
+        className="text-light-gray/60 text-xs text-center mt-4"
       >
-        THIS CONVERSATION IS TEMPORARY AND WILL BE CLEARED WHEN YOU LEAVE.
+        This conversation is not saved and will be cleared when you leave.
       </motion.p>
     </div>
   );
